@@ -3,6 +3,7 @@ const router = express.Router();
 const { detectLanguage, translateText } = require("../utils/translateFunctions")
 const { sendMail } = require("../utils/mailFunctions")
 const {LANGUAGE_ISO_CODE} = require("../utils/dictionaries")
+const {detectLabels, detectImageProperties} = require("../utils/imageRecognitionFunctions")
 
 router.get("/detect", async (req, res) => {
     const {text} = req.body;
@@ -43,5 +44,19 @@ router.post("/send", (req, res) => {
     sendMail(receiverMail, senderMail, messageContent, `${senderName} has sent you a message`);
     res.send(200);
 })
+
+// utilsRouter.js
+router.get("/labels", async (req, res) => {
+    const { link } = req.body;
+    if (!link) {
+        return res.status(400).send("Bad request. Missing parametres.");
+    }
+    const labels = await detectLabels(link);
+    console.log(labels);
+    return res.json({
+        labels,
+    });
+}
+);
 
 module.exports = router;
